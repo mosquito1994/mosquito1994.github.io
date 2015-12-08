@@ -78,15 +78,15 @@ gulp / grunt
 <p>之后在npm中输入<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g mean-cil</span><br></pre></td></tr></table></figure></p>
 <p>安装完成后就使用<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mean init</span><br></pre></td></tr></table></figure></p>
 <p>来创建mean.io应用，会被要求输入应用名，之后自动从mean.io的github上复制文件<br>复制完成出现这个  </p>
-<p><img src="/images/meanInit.png"><br>这里默认选择no，但是创建一个管理员用户会很方便，所以选择yes创建管理员用户<br>在此之前要先打开mongodb，否则会报错  </p>
-<p><img src="../images/mongodb.png"><br>完成之后进入目录使用 npm install 安装依赖。值得吐槽的是，要装的依赖真是多……  </p>
+<p><img src="images/meanInit.png"><br>这里默认选择no，但是创建一个管理员用户会很方便，所以选择yes创建管理员用户<br>在此之前要先打开mongodb，否则会报错  </p>
+<p><img src="images/mongodb.png"><br>完成之后进入目录使用 npm install 安装依赖。值得吐槽的是，要装的依赖真是多……  </p>
 <p>全部安装完成后第一个mean.io应用就可以使用了，使用<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gulp</span><br></pre></td></tr></table></figure></p>
 <p>启动应用，在浏览器中打开 localhost:3000 即可看到搭建的默认应用，并且由于使用了gulp，在相关文件发生改变时页面会自动重载刷新</p>
 <h3 id="u9047_u5230_u7684_u95EE_u9898"><a href="#u9047_u5230_u7684_u95EE_u9898" class="headerlink" title="遇到的问题"></a>遇到的问题</h3><p>mean init 时提示 “Prerequisite not installed: git”<br>官方文档说应当把git的可执行文件路径添加进去，然而并不明白……<br>在 StackOverflow 上找到了不错的解决办法，就是把git重装一遍，在下图界面选择”Use Git from the Windows Command Prompt”即可  </p>
-<p><img src="../images/gitSetup.png"></p>
+<p><img src="images/gitSetup.png"></p>
 <h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>每次启动应用之前需要先启动mongodb，否则会报错</p>
 <h2 id="mean-io_u7684_u6587_u4EF6_u7ED3_u6784"><a href="#mean-io_u7684_u6587_u4EF6_u7ED3_u6784" class="headerlink" title="mean.io的文件结构"></a>mean.io的文件结构</h2><p>主要关注应用目录下的packages文件夹<br>通常会有core和custom两个子文件夹<br>core文件夹中包含的是首页、文章编辑、用户登录注册和管理员界面等<br>custom可以理解为分页面，就像一个新闻页面会有一个首页和每个版块的新闻分页面一样<br>custom里面装的就是这些分页面，并且这些分页面会自动添加到首页的导航栏中  </p>
-<h3 id="core_u7684_u6587_u4EF6_u7ED3_u6784"><a href="#core_u7684_u6587_u4EF6_u7ED3_u6784" class="headerlink" title="core的文件结构"></a>core的文件结构</h3><p><img src="../images/core.png"></p>
+<h3 id="core_u7684_u6587_u4EF6_u7ED3_u6784"><a href="#core_u7684_u6587_u4EF6_u7ED3_u6784" class="headerlink" title="core的文件结构"></a>core的文件结构</h3><p><img src="images/core.png"></p>
 <ul>
 <li>admin是管理员界面  </li>
 <li>article是文章编辑、发布、展示的界面  </li>
@@ -94,7 +94,7 @@ gulp / grunt
 <li>users是登录、注册、忘记密码等界面</li>
 </ul>
 <p>system的结构如下</p>
-<p><img src="../images/system.png"><br>其中public是客户端</p>
+<p><img src="images/system.png"><br>其中public是客户端</p>
 <ul>
 <li>assets用于存放样式表和图片</li>
 <li>cotroller是angular的控制器，如模块定义、事件监听等</li>
