@@ -99,13 +99,14 @@ gulp / grunt
 <li>assets用于存放样式表和图片</li>
 <li>cotroller是angular的控制器，如模块定义、事件监听等</li>
 <li>routes是angular路由</li>
+<li>servics实例化angular服务</li>
 <li>views是html视图层</li>
 </ul>
 <p>server是服务器端</p>
 <ul>
 <li>controller是node控制器，如模板渲染等</li>
 <li>routes是node路由</li>
-<li>views使用的模板引擎应该是ejs，是将页面head、foot和主体内容组装起来的关键，其中includes里面存放了页面的head（仅仅就是html结构中head的部分）和foot  layouts中的default.html引用head、foot的相关文件将其组装起来，但是很奇怪并没有对主体内容部分进行渲染，这样最终出来的页面会只有导航栏和管理员菜单（登录后），并且点击导航栏链接切换分页面也不会有任何内容显示。<br>在views目录下还有一个index.html，引用了default.html，并且添加了对主体部分的渲染，这样出来的页面就是一个完整的页面了。</li>
+<li>views使用的模板引擎是ejs，是将页面head、foot和主体内容组装起来的关键，其中includes里面存放了页面的head（仅仅就是html结构中head的部分）和foot  layouts中的default.html引用head、foot的相关文件将其组装起来，但是很奇怪并没有对主体内容部分进行渲染，这样最终出来的页面会只有导航栏和管理员菜单（登录后），并且点击导航栏链接切换分页面也不会有任何内容显示。<br>在views目录下还有一个index.html，引用了default.html，并且添加了对主体部分的渲染，这样出来的页面就是一个完整的页面了。</li>
 </ul>
 <h3 id="custom_u7684_u6587_u4EF6_u7ED3_u6784"><a href="#custom_u7684_u6587_u4EF6_u7ED3_u6784" class="headerlink" title="custom的文件结构"></a>custom的文件结构</h3><p>custom下默认已经有一个子页面 i18n 和另外两个文件夹。按理说这三个都应该是属于子页面被添加到导航栏，但是实际上只有 i18n 被添加了，另外两个并没有。这两个文件夹还不能被移除，否则会报错。i18n这个是样例，新创建的子页面都会和它一样，这个文件夹可以随意移除或是更改名称。</p>
 <h2 id="mean-io_u7684_u4F7F_u7528"><a href="#mean-io_u7684_u4F7F_u7528" class="headerlink" title="mean.io的使用"></a>mean.io的使用</h2><h3 id="u521B_u5EFA_u81EA_u5DF1_u7684_u5B50_u9875_u9762_u5E94_u7528__28package_29"><a href="#u521B_u5EFA_u81EA_u5DF1_u7684_u5B50_u9875_u9762_u5E94_u7528__28package_29" class="headerlink" title="创建自己的子页面应用 (package)"></a>创建自己的子页面应用 (package)</h3><p>官方文档中称这样的子页面应用为package，创建自己的package可以通过<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mean package &#60;packageName&#62;</span><br></pre></td></tr></table></figure></p>
