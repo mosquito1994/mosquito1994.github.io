@@ -66,7 +66,7 @@
 <p>好的，我就像书上那样做了，于是控制台报错:”ReferenceError: flash is not defined”。<br>百度，好，是没有connect-flash，并且还要在app.js添加<br><code>var flash = require(&#39;connect-flash&#39;);  
 app.use(flash());</code><br>好，试试再跑一下。  </p>
 <p>于是，继续报错”Session is not defined”。<br>好吧，是没有connect-session中间件。装好并require引入依赖之后npm start正常，但控制台多了两行字<br><code>express-session deprecated undefined xxxx  
-express-session deprecated undefined xxxx</code><br>这不能忍对吧，于是百度了下，发现是session的配置不完整，人家的配置都有很多项目，而我的只有secret一项。好的，于是更改配置。<br><code>app.use(session({   
+express-session deprecated undefined xxxx</code><br>这不能忍对吧，于是百度了下，发现是session的配置不完整，人家的配置都有很多项目，而我的只有secret一项。好的，于是更改配置。<br><code>app.use(session({  
   secret: &#39;nothing&#39;,  
   store: new MongoStore({  
     db: &#39;todo&#39;  
