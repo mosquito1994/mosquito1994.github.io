@@ -65,16 +65,16 @@ connect-flash概念一个express的中间件，通过将消息存储在session�
 <h2 id="connect-flash_u6982_u5FF5"><a href="#connect-flash_u6982_u5FF5" class="headerlink" title="connect-flash概念"></a>connect-flash概念</h2><p>一个express的中间件，通过将消息存储在session中，使得在不同页面之间跳转时消息内容可以共享。connect-flash支持自定义信息类型如info/error/success等等。通过在node路由的回调函数中调用<br><code>res.flash(&#39;info&#39;, content);</code><br>就可以直接在页面的视图中通过<br><code>p= flash.info</code><br>这样的方式来显示消息内容。<br>为什么不用alert?我一开始也这么想，但是alert是浏览器提供的方法，在这里没有用武之地啊。</p>
 <h2 id="u8270_u96BE_u7684_u8C03_u8BD5_u8FC7_u7A0B"><a href="#u8270_u96BE_u7684_u8C03_u8BD5_u8FC7_u7A0B" class="headerlink" title="艰难的调试过程"></a>艰难的调试过程</h2><p>书本中版本的express应该是很简单的，只要在app.js中添加<br>``<br>app.use(express.cookieParser());<br>app.use(express.session({<br>    secret: ‘xxxx’ // 随机的秘钥，自由设定<br>}););<br>```<br>然后就像上面说的那样可以成功操作了。  </p>
 <p>然而，对于最新4.x版本的express，事情就没有那么简单。<br>首先，最新版express剥离了connect-flash，也就是这个闪出消息中间件。<br>其次，express-session也被剥离了，这意味着session也不被默认支持了。<br>之后，问题才刚刚开始。  </p>
-<p>好的，我就像书上那样做了，于是控制台报错:”ReferenceError: flash is not defined”。<br>百度，好，是没有connect-flash，并且还要在app.js添加<br><code>var flash = require(&#39;connect-flash&#39;);
+<p>好的，我就像书上那样做了，于是控制台报错:”ReferenceError: flash is not defined”。<br>百度，好，是没有connect-flash，并且还要在app.js添加<br><code>var flash = require(&#39;connect-flash&#39;);  
 app.use(flash());</code><br>好，试试再跑一下。  </p>
-<p>于是，继续报错”Session is not defined”。<br>好吧，是没有connect-session中间件。装好并require引入依赖之后npm start正常，但控制台多了两行字<br><code>express-session deprecated undefined xxxx
-express-session deprecated undefined xxxx</code><br>这不能忍对吧，于是百度了下，发现是session的配置不完整，人家的配置都有很多项目，而我的只有secret一项。好的，于是更改配置。<br><code>app.use(session({ 
-  secret: &#39;nothing&#39;,
-  store: new MongoStore({
-    db: &#39;todo&#39;
-  }),
-  resave: true,
-  saveUninitialized: true
+<p>于是，继续报错”Session is not defined”。<br>好吧，是没有connect-session中间件。装好并require引入依赖之后npm start正常，但控制台多了两行字<br><code>express-session deprecated undefined xxxx  
+express-session deprecated undefined xxxx</code><br>这不能忍对吧，于是百度了下，发现是session的配置不完整，人家的配置都有很多项目，而我的只有secret一项。好的，于是更改配置。<br><code>app.use(session({   
+  secret: &#39;nothing&#39;,  
+  store: new MongoStore({  
+    db: &#39;todo&#39;  
+  }),  
+  resave: true,  
+  saveUninitialized: true  
 }));</code><br>这里todo是我的数据库名。<br>再次启动，又开始报错”MongoStore is not defined”。<br>得，又是中间件问题，好，安装，require添加依赖。<br><code>SyntaxError:Use of const in strict mode.</code><br>这是逗我吗，你自己写’use strict’又自己违反规定？<br>于是我很高兴地帮助作者删掉了’use strict’，继续愉快的报错’prop is not defined’。<br>感觉已经没办法了，于是我再次机智地在github上找到了connect-mongo，看了他的官方说明，并没有找到解决办法。于是，我在issue里面像作者提问了。<br>然后我就傻逼了。</p>
 <p>作者的确回复了我，说如果你的node版本比较低的话应该<br><code>require(&#39;connect-mongo/es5&#39;)</code><br>而不是<br><code>require(&#39;connect-mongo&#39;)</code><br>我再把说明文档看了一遍，上面对老版本node有特别说明，解决方法也有。  </p>
 <p>啊……</p>
@@ -82,7 +82,7 @@ express-session deprecated undefined xxxx</code><br>这不能忍对吧，于是�
 <p><code>Connection strategy not found at new MongoStore.</code><br>新的错误。<br>再次在github上找，并没有结果，也再不敢直接就去给作者提问了。<br>于是打开了connect-mongo源码。<br>找到了一堆判断语句，和说明文档对应一下分别是使用不同的数据库连接的判断语句。<br>其中有一个是数据库url判定的，并没有找到db相关的。于是把<br><code>db: &#39;todo&#39;</code><br>改成了url<br><code>url: &#39;mongodb://localhost:todo&#39;</code><br>于是，终于好了。</p>
 <p>我在index的路由中直接加入<br><code>req.flash(&#39;info&#39;, &#39;fuck&#39;);</code><br>试图在index.jade中通过flash.info获取它，但是提示’Cannot read property ‘info’ of undefined’。  </p>
 <p>再后来通过回调函数中添加<br><code>res.locals.flash = req.flash()</code><br>res.locals看起来应该是本地变量声明。<br>这样的话就可以正常在index.jade中访问到flash.info了，因为req.flash()返回结果是json。  </p>
-<p>等等，这样的话我还要用connect-flash干嘛，直接用<br><code>req.session.xxx = &#39;xx&#39;;
+<p>等等，这样的话我还要用connect-flash干嘛，直接用<br><code>req.session.xxx = &#39;xx&#39;;    
 res.locals.xxx = req.session.xxx;</code><br>不就好了吗？</p>
 <p>但是我不能忍。  </p>
 <p>于是我就把connect-flash的文件给改了，加了一行代码。改完之后，终于在首页得到了输出，而且路由中只要用req.flash()声明就好了。插件也是可以改的嘛对吧。</p>
@@ -90,12 +90,12 @@ res.locals.xxx = req.session.xxx;</code><br>不就好了吗？</p>
 <li>安装express-session并在app.js中引入依赖</li>
 <li>安装connect-mongo并在app.js中引入依赖，node版本在0.12以下的则需要<br><code>require(&#39;connect-mongo/es5&#39;)</code><br>因为还不支持es6</li>
 <li>按以下格式引入session，当然，还有更多可选参数，可以参见官方文档<br><code>app.use(session({ 
-secret: // your random key here,
-store: new MongoStore({
- url: &#39;mongodb://localhost:todo&#39; // your database address
-}),
-resave: true,
-saveUninitialized: true
+secret: // your random key here,    
+store: new MongoStore({     
+ url: &#39;mongodb://localhost:todo&#39; // your database address    
+}),    
+resave: true,    
+saveUninitialized: true    
 }));</code></li>
 <li>这样就可以在路由的回调函数中使用req.session了</li>
 </ol>
@@ -103,8 +103,8 @@ saveUninitialized: true
 <ol>
 <li>安装connect-flash并在app.js中引入依赖</li>
 <li>引入session</li>
-<li>在路由的回调函数中使用req.flash传入消息类型（主要在要添加样式的时候有区别）和内容<br><code>router.get(&#39;/&#39;, function(req, res, next) {
- req.flash(&#39;info&#39;, &#39;hello world&#39;);
+<li>在路由的回调函数中使用req.flash传入消息类型（主要在要添加样式的时候有区别）和内容<br><code>router.get(&#39;/&#39;, function(req, res, next) {  
+ req.flash(&#39;info&#39;, &#39;hello world&#39;);  
 });</code></li>
 <li>在jade模板中就可以通过flash.info/flash.error访问到提示内容，而且由于session的关系可以在不同页面之间跳转的时候也能得到同步的信息</li>
 </ol>
