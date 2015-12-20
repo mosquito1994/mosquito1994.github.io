@@ -12,7 +12,7 @@
 添加任务的视图
 编辑任务的视图，这个可以和添加任务视图共用
 
-下面是首页视图index.jade``{bash}mixin taskItem(tname, time, id)    li= tname + ‘ ‘ + time     ">
+下面是首页视图index.jade1mixin taskItem(tname, time, id)&amp;#10;    li= tname + &amp;#39; &amp;#39; + tim">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -72,15 +72,14 @@
 <li>添加任务的视图</li>
 <li>编辑任务的视图，这个可以和添加任务视图共用</li>
 </ul>
-<p>下面是首页视图index.jade<br>``{bash}<br>mixin taskItem(tname, time, id)<br>    li= tname + ‘ ‘ + time<br>        a(href=’/editTask/#{id}’) 编辑<br>        a(href=’/delTask/#{id}/delete’) 删除</p>
-<p>extends head</p>
-<p>block content<br>    a(href=’/newTask’) 添加任务<br>    if (taskList.length)<br>        ul<br>            each task in taskList<br>                +taskItem(task.tname, task.time, task.id)<br>    else<br>        p 你还没有任何任务<br>``<br>写的时候发现使用mixin的两点注意</p>
+<p>下面是首页视图index.jade<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mixin taskItem(tname, time, id)&#10;    li= tname + &#39; &#39; + time &#10;        a(href=&#39;/editTask/#&#123;id&#125;&#39;) &#32534;&#36753;&#10;        a(href=&#39;/delTask/#&#123;id&#125;/delete&#39;) &#21024;&#38500;&#10;&#10;extends head&#10;&#10;block content&#10;    a(href=&#39;/newTask&#39;) &#28155;&#21152;&#20219;&#21153;&#10;    if (taskList.length)&#10;        ul &#10;            each task in taskList&#10;                +taskItem(task.tname, task.time, task.id)&#10;    else&#10;        p &#20320;&#36824;&#27809;&#26377;&#20219;&#20309;&#20219;&#21153;</span><br></pre></td></tr></table></figure></p>
+<p>写的时候发现使用mixin的两点注意</p>
 <ol>
 <li>mixin前面不要加’-‘，加’-‘的说是在服务器端的代码，这样下面的引用会报错undefined</li>
 <li>使用mixin时的加号不能省去，否则会是字符串输出，mixin没有用</li>
 </ol>
-<p>添加和编辑任务的视图task.jade如下<br>``{bash}<br>//- Used for editing and creating tasks<br>extend head</p>
-<p>block content<br>    -if (task)<br>        -tname = task.tname<br>        -time = task.time<br>        -tid = task.id<br>    -else<br>        -tname = ‘’<br>        -time = ‘’<br>        -tid = ‘’<br>    form(action=’/save/#{tid}’,method=’post’)<br>        span 任务内容<br>        input(name=’tname’,value=tname)<br>        br<br>        span 时间<br>        input(type=’time’,name=’time’,value=time)<br>        br<br>        -if (task)<br>            input(type=’hidden’,name=’_method’,value=’PUT’)<br>        br<br>        input(type=’submit’)<br>``<br>注意到了以下几点</p>
+<p>添加和编辑任务的视图task.jade如下<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//- Used for editing and creating tasks&#10;extend head&#10;&#10;block content&#10;    -if (task)&#10;        -tname = task.tname&#10;        -time = task.time&#10;        -tid = task.id&#10;    -else&#10;        -tname = &#39;&#39;&#10;        -time = &#39;&#39;&#10;        -tid = &#39;&#39;&#10;    form(action=&#39;/save/#&#123;tid&#125;&#39;,method=&#39;post&#39;)&#10;        span &#20219;&#21153;&#20869;&#23481;&#10;        input(name=&#39;tname&#39;,value=tname)&#10;        br&#10;        span &#26102;&#38388;&#10;        input(type=&#39;time&#39;,name=&#39;time&#39;,value=time)&#10;        br&#10;        -if (task)&#10;            input(type=&#39;hidden&#39;,name=&#39;_method&#39;,value=&#39;PUT&#39;)&#10;        br&#10;        input(type=&#39;submit&#39;)</span><br></pre></td></tr></table></figure></p>
+<p>注意到了以下几点</p>
 <ol>
 <li>在input的括号里面并不能使用三目运算符，所以只好在之前加一个判断</li>
 <li>if/else语句块去掉前面’-‘后会报错，但是不知道原因</li>
@@ -91,44 +90,21 @@
 <ul>
 <li>通过require语句将mongoose包含进来</li>
 <li>连接数据库，数据库如果不存在会自动创建<br><code>mongoose.connect(&#39;mongodb://localhost/todo&#39;);</code></li>
-<li>创建一个schema，这规定了数据存储的结构<br><code>{bash}
-var Schema = mongoose.Schema;
-var Task = new Schema({
-  task: String,
-  time: String // 发现用Date很傻逼
-});</code></li>
-<li>之后用该schema创建一个model，就可以通过该model进行数据库相关操作<br><code>var task = mongoose.model(&#39;task&#39;, Task);</code></li>
+<li><p>创建一个schema，这规定了数据存储的结构</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var Schema = mongoose.Schema;&#10;var Task = new Schema(&#123;&#10;    task: String,&#10;    time: String // &#21457;&#29616;&#29992;Date&#24456;&#20667;&#36924;&#10;&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>之后用该schema创建一个model，就可以通过该model进行数据库相关操作<br><code>var task = mongoose.model(&#39;task&#39;, Task);</code></p>
+</li>
 <li>最后输出task内容，需要操作数据库时只要将该文件引入即可<br><code>module.exports = task;</code><h2 id="u6DFB_u52A0_u8DEF_u7531"><a href="#u6DFB_u52A0_u8DEF_u7531" class="headerlink" title="添加路由"></a>添加路由</h2>一共就是首页展示任务、添加任务、删除任务、编辑任务几个路由。</li>
 </ul>
 <p>首页的展示只要使用find方法找到所有的task并输出就可以了，这里传入的docs就是找到的结果，有那么一点像ajax里面服务器返回内容，同样是参数传入并调用的。db是引入的mongoose model。</p>
-<p>``{bash}<br>/<em> GET task list </em>/<br>router.get(‘/‘, function(req, res, next) {<br>    req.flash(‘info’, ‘fuck you’);<br>    db.find({}, function(err, docs) {<br>        res.render(‘index’, {<br>            title: ‘Task list’,<br>            taskList: docs<br>        });<br>    });</p>
-<p>});<br>``</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* GET task list */&#10;router.get(&#39;/&#39;, function(req, res, next) &#123;&#10;    req.flash(&#39;info&#39;, &#39;fuck you&#39;);&#10;    db.find(&#123;&#125;, function(err, docs) &#123;&#10;        res.render(&#39;index&#39;, &#123;&#10;            title: &#39;Task list&#39;,&#10;            taskList: docs&#10;        &#125;);&#10;    &#125;);&#10;&#10;&#125;);</span><br></pre></td></tr></table></figure>
 <p>添加任务这里就涉及到两个路由了。首先是点击“添加任务”的路由，这个很简单，就是直接调用task.jade。还有就是在填写完表单之后点击提交按钮的路由，这个涉及到了添加记录的操作</p>
-<p><code>{bash}
-/* save task */
-router.post(&#39;/save&#39;, function(req, res, next) {
-    var newTask = new db({
-        tname: req.body.tname,
-        time: req.body.time
-    });
-    newTask.save(function(err) {
-        if (!err) {
-            req.flash(&#39;info&#39;, &#39;successly add a task&#39;);
-            res.redirect(&#39;/&#39;);
-        }
-    });
-});</code><br>首先要实例化一个model，以json的形式传入内容，内容的形式是必须和之前创建的Schema完全对应的。之后只要调用save方法就可以将记录保存到数据库中去了。<br>另外这里的req.body是json形式传入的所以操作很方便。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* save task */&#10;router.post(&#39;/save&#39;, function(req, res, next) &#123;&#10;    var newTask = new db(&#123;&#10;        tname: req.body.tname,&#10;        time: req.body.time&#10;    &#125;);&#10;    newTask.save(function(err) &#123;&#10;        if (!err) &#123;&#10;            req.flash(&#39;info&#39;, &#39;successly add a task&#39;);&#10;            res.redirect(&#39;/&#39;);&#10;        &#125;&#10;    &#125;);&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<p>首先要实例化一个model，以json的形式传入内容，内容的形式是必须和之前创建的Schema完全对应的。之后只要调用save方法就可以将记录保存到数据库中去了。<br>另外这里的req.body是json形式传入的所以操作很方便。</p>
 <p>编辑任务的话由于是从首页点击进入编辑界面的，所以也需要两个路由。一开始想到应该不需要传入文章id，但是后来发现这样根本不可能。如果有DOM的支持，还可以直接从html中获取任务内容，但是node里面并没有DOM，所以还是只能用id来操作。</p>
-<p><code>{bash}
-/* edit task */
-router.get(&#39;/editTask/:id&#39;, function(req, res, next) {
-    db.findById(req.params.id, function(err, doc) {
-        res.render(&#39;task&#39;, {
-            title: &#39;edit task&#39;,
-            task: doc
-        });
-    })
-});</code><br>mongoose提供了一个findById方法，可以通过id找到相应的记录。id是每个条目在插入数据库时自动生成的，只要在首页任务展示的时候取到了某个记录，就可以取到任务相关信息以及id。有了id就可以加入到a标签的链接中，这样每个记录都有不同的链接，就可以通过链接中的id参数找到数据库中的记录。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* edit task */&#10;router.get(&#39;/editTask/:id&#39;, function(req, res, next) &#123;&#10;    db.findById(req.params.id, function(err, doc) &#123;&#10;        res.render(&#39;task&#39;, &#123;&#10;            title: &#39;edit task&#39;,&#10;            task: doc&#10;        &#125;);&#10;    &#125;)&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<p>mongoose提供了一个findById方法，可以通过id找到相应的记录。id是每个条目在插入数据库时自动生成的，只要在首页任务展示的时候取到了某个记录，就可以取到任务相关信息以及id。有了id就可以加入到a标签的链接中，这样每个记录都有不同的链接，就可以通过链接中的id参数找到数据库中的记录。</p>
 <p>进入到编辑视图中编辑完成点击提交按钮之后的路由与上面的比较相似，同样需要找到对应的记录，然后以json形式传入内容，只不过这里不再像创建新任务那样要创建新的model实例，而是直接对传入的doc进行更改。更改完成再调用save方法就可以完成修改。如果不找到原有记录而是重新创建一个实例并直接save的话是会重新创建一条记录的，即使内容和修改之前的完全一样。</p>
 <p>删除任务是在首页点击链接实现的操作，同样要用findById方法找到记录，然后只要调用remove方法就可以删除记录。</p>
 <p>所有的操作完成之后都需要再回到首页，使用<br><code>res.redirect(&#39;/&#39;)</code><br>在路由的回调函数中设置重定向。</p>
