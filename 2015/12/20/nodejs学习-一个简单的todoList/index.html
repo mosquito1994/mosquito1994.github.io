@@ -1,0 +1,273 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>nodejs学习-一个简单的todoList | mosquito的个人博客</title>
+  <meta name="author" content="mosquito">
+  
+  <meta name="description" content="添加视图需要添加的视图有
+
+显示所有任务的视图（也是首页视图）
+添加任务的视图
+编辑任务的视图，这个可以和添加任务视图共用
+
+下面是首页视图index.jade``{bash}mixin taskItem(tname, time, id)    li= tname + ‘ ‘ + time     ">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="nodejs学习-一个简单的todoList"/>
+  <meta property="og:site_name" content="mosquito的个人博客"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="mosquito的个人博客" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">mosquito的个人博客</a></h1>
+  <h2><a href="/"></a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-12-20T12:15:24.000Z"><a href="/2015/12/20/nodejs学习-一个简单的todoList/">2015-12-20</a></time>
+      
+      
+  
+    <h1 class="title">nodejs学习-一个简单的todoList</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="u6DFB_u52A0_u89C6_u56FE"><a href="#u6DFB_u52A0_u89C6_u56FE" class="headerlink" title="添加视图"></a>添加视图</h2><p>需要添加的视图有</p>
+<ul>
+<li>显示所有任务的视图（也是首页视图）</li>
+<li>添加任务的视图</li>
+<li>编辑任务的视图，这个可以和添加任务视图共用</li>
+</ul>
+<p>下面是首页视图index.jade<br>``{bash}<br>mixin taskItem(tname, time, id)<br>    li= tname + ‘ ‘ + time<br>        a(href=’/editTask/#{id}’) 编辑<br>        a(href=’/delTask/#{id}/delete’) 删除</p>
+<p>extends head</p>
+<p>block content</p>
+<pre><code>a(href=&apos;/newTask&apos;) 添加任务
+if (taskList.length)
+    ul 
+        each task in taskList
+            +taskItem(task.tname, task.time, task.id)
+else
+    p 你还没有任何任务
+</code></pre><p>``<br>写的时候发现使用mixin的两点注意</p>
+<ol>
+<li>mixin前面不要加’-‘，加’-‘的说是在服务器端的代码，这样下面的引用会报错undefined</li>
+<li>使用mixin时的加号不能省去，否则会是字符串输出，mixin没有用</li>
+</ol>
+<p>添加和编辑任务的视图task.jade如下<br>``{bash}<br>//- Used for editing and creating tasks<br>extend head</p>
+<p>block content<br>    -if (task)<br>        -tname = task.tname<br>        -time = task.time<br>        -tid = task.id<br>    -else<br>        -tname = ‘’<br>        -time = ‘’<br>        -tid = ‘’</p>
+<pre><code>form(action=&apos;/save/#{tid}&apos;,method=&apos;post&apos;)
+    span 任务内容
+    input(name=&apos;tname&apos;,value=tname)
+    br
+    span 时间
+    input(type=&apos;time&apos;,name=&apos;time&apos;,value=time)
+    br
+    -if (task)
+        input(type=&apos;hidden&apos;,name=&apos;_method&apos;,value=&apos;PUT&apos;)
+    br
+    input(type=&apos;submit&apos;)
+</code></pre><p>``<br>注意到了以下几点</p>
+<ol>
+<li>在input的括号里面并不能使用三目运算符，所以只好在之前加一个判断</li>
+<li>if/else语句块去掉前面’-‘后会报错，但是不知道原因</li>
+<li>在url等带引号的字符串中引用输出变量，既可以使用加号连接，也可以使用#{}将变量名包裹起来，有点像php的$</li>
+</ol>
+<p>同样的也遇到了一些问题。根据书本上使用了_method来转换http方法，因为一般的只支持post和get方法，而在这里需要用到创建、添加、删除多个功能，一个方法可能不够路由识别。只要在form中添加<br><code>input(type=&#39;hidden&#39;,name=&#39;_method&#39;,value=&#39;PUT&#39;)</code><br>就可以方便的实现http方法转换。<br>但是最后由于删除的功能只是一个a标签不可能用form，才想到可以再在url后面添加’/delete’,’/edit’等等也没有问题的。<br>同样因为express 4.x移除了method-override中间件，所以必须要自行安装引入。但是调试了半天才终于在github上一个已经关闭的issue找到了答案：必须要用1.0版的才支持这种方法。即使用<br><code>npm install --save method-override@1</code><br>来安装旧版本。亏我搞了半个下午没搞出来，居然是版本问题。</p>
+<h2 id="u6DFB_u52A0mongodb"><a href="#u6DFB_u52A0mongodb" class="headerlink" title="添加mongodb"></a>添加mongodb</h2><p>新建一个mongodb.js文件，通过以下几个步骤将mongodb引入使用（在此之前需要安装mongoose）</p>
+<ul>
+<li>通过require语句将mongoose包含进来</li>
+<li>连接数据库，数据库如果不存在会自动创建<br><code>mongoose.connect(&#39;mongodb://localhost/todo&#39;);</code></li>
+<li>创建一个schema，这规定了数据存储的结构<br><code>var Schema = mongoose.Schema;
+var Task = new Schema({
+  task: String,
+  time: String // 发现用Date很傻逼
+});</code></li>
+<li>之后用该schema创建一个model，就可以通过该model进行数据库相关操作<br><code>var task = mongoose.model(&#39;task&#39;, Task);</code></li>
+<li>最后输出task内容，需要操作数据库时只要将该文件引入即可<br><code>module.exports = task;</code><h2 id="u6DFB_u52A0_u8DEF_u7531"><a href="#u6DFB_u52A0_u8DEF_u7531" class="headerlink" title="添加路由"></a>添加路由</h2>一共就是首页展示任务、添加任务、删除任务、编辑任务几个路由。</li>
+</ul>
+<p>首页的展示只要使用find方法找到所有的task并输出就可以了，这里传入的docs就是找到的结果，有那么一点像ajax里面服务器返回内容，同样是参数传入并调用的。db是引入的mongoose model。<br>``{bash}<br>/<em> GET task list </em>/<br>router.get(‘/‘, function(req, res, next) {<br>    req.flash(‘info’, ‘fuck you’);<br>    db.find({}, function(err, docs) {<br>        res.render(‘index’, {<br>            title: ‘Task list’,<br>            taskList: docs<br>        });<br>    });</p>
+<p>});<br>``</p>
+<p>添加任务这里就涉及到两个路由了。首先是点击“添加任务”的路由，这个很简单，就是直接调用task.jade。还有就是在填写完表单之后点击提交按钮的路由，这个涉及到了添加记录的操作<br><code>{bash}
+/* save task */
+router.post(&#39;/save&#39;, function(req, res, next) {
+    var newTask = new db({
+        tname: req.body.tname,
+        time: req.body.time
+    });
+    newTask.save(function(err) {
+        if (!err) {
+            req.flash(&#39;info&#39;, &#39;successly add a task&#39;);
+            res.redirect(&#39;/&#39;);
+        }
+    });
+});</code><br>首先要实例化一个model，以json的形式传入内容，内容的形式是必须和之前创建的Schema完全对应的。之后只要调用save方法就可以将记录保存到数据库中去了。<br>另外这里的req.body是json形式传入的所以操作很方便。</p>
+<p>编辑任务的话由于是从首页点击进入编辑界面的，所以也需要两个路由。一开始想到应该不需要传入文章id，但是后来发现这样根本不可能。如果有DOM的支持，还可以直接从html中获取任务内容，但是node里面并没有DOM，所以还是只能用id来操作。<br><code>{bash}
+/* edit task */
+router.get(&#39;/editTask/:id&#39;, function(req, res, next) {
+    db.findById(req.params.id, function(err, doc) {
+        res.render(&#39;task&#39;, {
+            title: &#39;edit task&#39;,
+            task: doc
+        });
+    })
+});</code><br>mongoose提供了一个findById方法，可以通过id找到相应的记录。id是每个条目在插入数据库时自动生成的，只要在首页任务展示的时候取到了某个记录，就可以取到任务相关信息以及id。有了id就可以加入到a标签的链接中，这样每个记录都有不同的链接，就可以通过链接中的id参数找到数据库中的记录。</p>
+<p>进入到编辑视图中编辑完成点击提交按钮之后的路由与上面的比较相似，同样需要找到对应的记录，然后以json形式传入内容，只不过这里不再像创建新任务那样要创建新的model实例，而是直接对传入的doc进行更改。更改完成再调用save方法就可以完成修改。如果不找到原有记录而是重新创建一个实例并直接save的话是会重新创建一条记录的，即使内容和修改之前的完全一样。</p>
+<p>删除任务是在首页点击链接实现的操作，同样要用findById方法找到记录，然后只要调用remove方法就可以删除记录。</p>
+<p>所有的操作完成之后都需要再回到首页，使用<br><code>res.redirect(&#39;/&#39;)</code><br>在路由的回调函数中设置重定向。</p>
+<p>另外我在所有视图都引用了的head.jade里面加入了提示信息，使用到了connect-flash中间件，同样也是在express 4.x中移除了的。关于connect-flash的内容在另外一篇日志中提到了，不再多写。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/express/">express</a>, <a href="/tags/nodejs/">nodejs</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://mosquito1994.github.io/2015/12/20/nodejs学习-一个简单的todoList/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mosquito1994.github.io">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/express/">express</a><small>2</small></li>
+  
+    <li><a href="/tags/mean/">mean</a><small>1</small></li>
+  
+    <li><a href="/tags/mean-io/">mean.io</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 mosquito
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<!-- lazyload -->
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery-lazyload/1.9.5/jquery.lazyload.min.js"></script>
+<script type="text/javascript">
+  jQuery(function() {          
+      jQuery("img").lazyload({
+        placeholder:"http://www.arao.me/loading.gif",
+          effect:"fadeIn"
+        });
+      });
+</script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
