@@ -67,33 +67,13 @@
 </ul>
 <p>下面是首页视图index.jade<br>``{bash}<br>mixin taskItem(tname, time, id)<br>    li= tname + ‘ ‘ + time<br>        a(href=’/editTask/#{id}’) 编辑<br>        a(href=’/delTask/#{id}/delete’) 删除</p>
 <p>extends head</p>
-<p>block content</p>
-<pre><code>a(href=&apos;/newTask&apos;) 添加任务
-if (taskList.length)
-    ul 
-        each task in taskList
-            +taskItem(task.tname, task.time, task.id)
-else
-    p 你还没有任何任务
-</code></pre><p>``<br>写的时候发现使用mixin的两点注意</p>
+<p>block content<br>    a(href=’/newTask’) 添加任务<br>    if (taskList.length)<br>        ul<br>            each task in taskList<br>                +taskItem(task.tname, task.time, task.id)<br>    else<br>        p 你还没有任何任务<br>``<br>写的时候发现使用mixin的两点注意</p>
 <ol>
 <li>mixin前面不要加’-‘，加’-‘的说是在服务器端的代码，这样下面的引用会报错undefined</li>
 <li>使用mixin时的加号不能省去，否则会是字符串输出，mixin没有用</li>
 </ol>
 <p>添加和编辑任务的视图task.jade如下<br>``{bash}<br>//- Used for editing and creating tasks<br>extend head</p>
-<p>block content<br>    -if (task)<br>        -tname = task.tname<br>        -time = task.time<br>        -tid = task.id<br>    -else<br>        -tname = ‘’<br>        -time = ‘’<br>        -tid = ‘’</p>
-<pre><code>form(action=&apos;/save/#{tid}&apos;,method=&apos;post&apos;)
-    span 任务内容
-    input(name=&apos;tname&apos;,value=tname)
-    br
-    span 时间
-    input(type=&apos;time&apos;,name=&apos;time&apos;,value=time)
-    br
-    -if (task)
-        input(type=&apos;hidden&apos;,name=&apos;_method&apos;,value=&apos;PUT&apos;)
-    br
-    input(type=&apos;submit&apos;)
-</code></pre><p>``<br>注意到了以下几点</p>
+<p>block content<br>    -if (task)<br>        -tname = task.tname<br>        -time = task.time<br>        -tid = task.id<br>    -else<br>        -tname = ‘’<br>        -time = ‘’<br>        -tid = ‘’<br>    form(action=’/save/#{tid}’,method=’post’)<br>        span 任务内容<br>        input(name=’tname’,value=tname)<br>        br<br>        span 时间<br>        input(type=’time’,name=’time’,value=time)<br>        br<br>        -if (task)<br>            input(type=’hidden’,name=’_method’,value=’PUT’)<br>        br<br>        input(type=’submit’)<br>``<br>注意到了以下几点</p>
 <ol>
 <li>在input的括号里面并不能使用三目运算符，所以只好在之前加一个判断</li>
 <li>if/else语句块去掉前面’-‘后会报错，但是不知道原因</li>
@@ -104,7 +84,8 @@ else
 <ul>
 <li>通过require语句将mongoose包含进来</li>
 <li>连接数据库，数据库如果不存在会自动创建<br><code>mongoose.connect(&#39;mongodb://localhost/todo&#39;);</code></li>
-<li>创建一个schema，这规定了数据存储的结构<br><code>var Schema = mongoose.Schema;
+<li>创建一个schema，这规定了数据存储的结构<br><code>{bash}
+var Schema = mongoose.Schema;
 var Task = new Schema({
   task: String,
   time: String // 发现用Date很傻逼
@@ -112,9 +93,11 @@ var Task = new Schema({
 <li>之后用该schema创建一个model，就可以通过该model进行数据库相关操作<br><code>var task = mongoose.model(&#39;task&#39;, Task);</code></li>
 <li>最后输出task内容，需要操作数据库时只要将该文件引入即可<br><code>module.exports = task;</code><h2 id="u6DFB_u52A0_u8DEF_u7531"><a href="#u6DFB_u52A0_u8DEF_u7531" class="headerlink" title="添加路由"></a>添加路由</h2>一共就是首页展示任务、添加任务、删除任务、编辑任务几个路由。</li>
 </ul>
-<p>首页的展示只要使用find方法找到所有的task并输出就可以了，这里传入的docs就是找到的结果，有那么一点像ajax里面服务器返回内容，同样是参数传入并调用的。db是引入的mongoose model。<br>``{bash}<br>/<em> GET task list </em>/<br>router.get(‘/‘, function(req, res, next) {<br>    req.flash(‘info’, ‘fuck you’);<br>    db.find({}, function(err, docs) {<br>        res.render(‘index’, {<br>            title: ‘Task list’,<br>            taskList: docs<br>        });<br>    });</p>
+<p>首页的展示只要使用find方法找到所有的task并输出就可以了，这里传入的docs就是找到的结果，有那么一点像ajax里面服务器返回内容，同样是参数传入并调用的。db是引入的mongoose model。</p>
+<p>``{bash}<br>/<em> GET task list </em>/<br>router.get(‘/‘, function(req, res, next) {<br>    req.flash(‘info’, ‘fuck you’);<br>    db.find({}, function(err, docs) {<br>        res.render(‘index’, {<br>            title: ‘Task list’,<br>            taskList: docs<br>        });<br>    });</p>
 <p>});<br>``</p>
-<p>添加任务这里就涉及到两个路由了。首先是点击“添加任务”的路由，这个很简单，就是直接调用task.jade。还有就是在填写完表单之后点击提交按钮的路由，这个涉及到了添加记录的操作<br><code>{bash}
+<p>添加任务这里就涉及到两个路由了。首先是点击“添加任务”的路由，这个很简单，就是直接调用task.jade。还有就是在填写完表单之后点击提交按钮的路由，这个涉及到了添加记录的操作</p>
+<p><code>{bash}
 /* save task */
 router.post(&#39;/save&#39;, function(req, res, next) {
     var newTask = new db({
@@ -128,7 +111,8 @@ router.post(&#39;/save&#39;, function(req, res, next) {
         }
     });
 });</code><br>首先要实例化一个model，以json的形式传入内容，内容的形式是必须和之前创建的Schema完全对应的。之后只要调用save方法就可以将记录保存到数据库中去了。<br>另外这里的req.body是json形式传入的所以操作很方便。</p>
-<p>编辑任务的话由于是从首页点击进入编辑界面的，所以也需要两个路由。一开始想到应该不需要传入文章id，但是后来发现这样根本不可能。如果有DOM的支持，还可以直接从html中获取任务内容，但是node里面并没有DOM，所以还是只能用id来操作。<br><code>{bash}
+<p>编辑任务的话由于是从首页点击进入编辑界面的，所以也需要两个路由。一开始想到应该不需要传入文章id，但是后来发现这样根本不可能。如果有DOM的支持，还可以直接从html中获取任务内容，但是node里面并没有DOM，所以还是只能用id来操作。</p>
+<p><code>{bash}
 /* edit task */
 router.get(&#39;/editTask/:id&#39;, function(req, res, next) {
     db.findById(req.params.id, function(err, doc) {
